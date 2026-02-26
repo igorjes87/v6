@@ -189,13 +189,13 @@ export function BrainDump() {
           <span className="text-[10px] text-destructive font-medium flex-1">
             Limite atingido.
           </span>
-          <button
-            onClick={() => setProModalOpen(true)}
+          <a
+            href="#"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#F59E0B] to-[#F97316] text-[#07070D] text-[10px] font-bold transition-all active:scale-[0.97] shrink-0"
           >
             <Crown className="w-3 h-3" />
             Liberar Espaco Ilimitado no NEURON PRO
-          </button>
+          </a>
         </div>
       )}
 
@@ -368,13 +368,13 @@ export function BrainDump() {
             <p className="text-[11px] text-muted-foreground mb-3 text-center px-4">
               Conteudo gerado pela IA apos analise completa
             </p>
-            <button
-              onClick={() => setProModalOpen(true)}
+            <a
+              href="#"
               className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F59E0B] to-[#F97316] text-[#07070D] text-xs font-bold transition-all active:scale-[0.97] shadow-[0_0_20px_rgba(245,158,11,0.3)]"
             >
               <Crown className="w-3.5 h-3.5" />
-              Upgrade PRO
-            </button>
+              Ativar NEURON PRO
+            </a>
           </div>
         </div>
 
@@ -403,13 +403,13 @@ export function BrainDump() {
             <p className="text-[11px] text-muted-foreground mb-3 text-center px-4">
               Insights personalizados pela IA neural
             </p>
-            <button
-              onClick={() => setProModalOpen(true)}
+            <a
+              href="#"
               className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F59E0B] to-[#F97316] text-[#07070D] text-xs font-bold transition-all active:scale-[0.97] shadow-[0_0_20px_rgba(245,158,11,0.3)]"
             >
               <Crown className="w-3.5 h-3.5" />
-              Upgrade PRO
-            </button>
+              Ativar NEURON PRO
+            </a>
           </div>
         </div>
 
@@ -441,13 +441,13 @@ export function BrainDump() {
             <p className="text-[11px] text-muted-foreground mb-3 text-center px-4">
               Protocolo personalizado pela IA
             </p>
-            <button
-              onClick={() => setProModalOpen(true)}
+            <a
+              href="#"
               className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F59E0B] to-[#F97316] text-[#07070D] text-xs font-bold transition-all active:scale-[0.97] shadow-[0_0_20px_rgba(245,158,11,0.3)]"
             >
               <Crown className="w-3.5 h-3.5" />
-              Upgrade PRO
-            </button>
+              Ativar NEURON PRO
+            </a>
           </div>
         </div>
       </div>

@@ -575,14 +575,40 @@ function NeonResultModal({
             </button>
           )}
 
-          {/* PRO analysis */}
-          <button
-            onClick={onProClick}
+          {/* PRO analysis preview + trava */}
+          <div className="relative rounded-xl overflow-hidden mb-3">
+            <div className="p-2.5 pb-0">
+              <p className="text-[10px] text-muted-foreground leading-relaxed">
+                Score <span className="font-bold" style={{ color: neonColor }}>{result.score}/100</span> - {result.found.length} aditivo(s) detectado(s).
+              </p>
+            </div>
+            <div className="relative">
+              <div className="p-2.5 pt-1 select-none pointer-events-none" style={{ filter: "blur(8px)" }} aria-hidden="true">
+                <p className="text-[10px] text-secondary-foreground leading-relaxed">
+                  Analise completa do perfil bioquimico com base nos ingredientes detectados e protocolo de eliminacao personalizado.
+                </p>
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <button
+                  onClick={onProClick}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#F59E0B] to-[#F97316] text-[#07070D] text-[10px] font-bold active:scale-[0.97] transition-all"
+                >
+                  <Lock className="w-2.5 h-2.5" />
+                  VER ANALISE COMPLETA (NEURON PRO)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* PRO CTA */}
+          <a
+            href="#"
+            onClick={(e) => { e.preventDefault(); onProClick() }}
             className="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl bg-gradient-to-r from-[#F59E0B] to-[#F97316] text-[#07070D] text-xs font-bold transition-all active:scale-[0.97] shadow-[0_0_20px_rgba(245,158,11,0.3)]"
           >
             <Crown className="w-3.5 h-3.5" />
-            Analise Bio-Individual (PRO)
-          </button>
+            Desbloquear NEURON PRO
+          </a>
         </div>
       </div>
     </div>
@@ -659,7 +685,7 @@ function ScanResultCard({
         </div>
       )}
 
-      {/* Bio-Individual Analysis - PRO */}
+      {/* Bio-Individual Analysis - PRO (blur + trava) */}
       <div className="p-4 border-b border-border/30">
         <div className="flex items-center gap-2 mb-2">
           <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
@@ -670,21 +696,32 @@ function ScanResultCard({
           </span>
         </div>
         <div className="relative rounded-xl overflow-hidden">
-          <div className="p-3 blur-[6px] select-none pointer-events-none" aria-hidden="true">
+          {/* Primeiras 2 linhas visiveis */}
+          <div className="p-3 pb-0">
             <p className="text-[11px] text-secondary-foreground leading-relaxed">
-              Com base no seu perfil genetico e historico de saude, este produto apresenta risco elevado para
-              o seu biotipo. Recomendamos substituicao imediata por alternativas naturais que respeitam
-              sua sensibilidade metabolica individual.
+              Score: <span className="font-bold" style={{ color: scoreColor }}>{result.score}/100</span> - {result.productName} contém {result.found.length} aditivo(s) potencialmente prejudicial(is).
             </p>
           </div>
-          <div className="absolute inset-0 flex items-center justify-center bg-background/50">
-            <button
-              onClick={onProClick}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#F59E0B] to-[#F97316] text-[#07070D] text-[11px] font-bold shadow-[0_0_15px_rgba(245,158,11,0.25)] active:scale-[0.97] transition-all"
-            >
-              <Lock className="w-3 h-3" />
-              Desbloquear com PRO
-            </button>
+          {/* Restante com blur */}
+          <div className="relative">
+            <div className="p-3 pt-1 select-none pointer-events-none" style={{ filter: "blur(8px)" }} aria-hidden="true">
+              <p className="text-[11px] text-secondary-foreground leading-relaxed">
+                Com base no seu perfil genetico e historico de saude, este produto apresenta risco elevado para
+                o seu biotipo. Recomendamos substituicao imediata por alternativas naturais que respeitam
+                sua sensibilidade metabolica individual. A combinacao de {result.found.map(f => f.name).join(", ")} pode causar efeitos sinergicos negativos.
+                Protocolo sugerido: eliminacao gradual em 7 dias com reposicao nutricional personalizada.
+              </p>
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <a
+                href="#"
+                onClick={(e) => { e.preventDefault(); onProClick() }}
+                className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-[#F59E0B] to-[#F97316] text-[#07070D] text-xs font-bold shadow-[0_0_20px_rgba(245,158,11,0.3)] active:scale-[0.97] transition-all"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                VER ANALISE COMPLETA (NEURON PRO)
+              </a>
+            </div>
           </div>
         </div>
       </div>

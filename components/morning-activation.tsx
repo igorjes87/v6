@@ -1,8 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Sunrise, Check, RotateCcw, ChevronDown, ChevronUp, Headphones, Lock, History, Calendar, Trash2 } from "lucide-react"
+import { Sunrise, Check, RotateCcw, ChevronDown, ChevronUp, Headphones, Lock, History, Calendar, Trash2, Save, Pause } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
+import { useAudioPlayer, type AudioTrack } from "@/lib/audio-context"
+import { playlistLinks, isSpotifyUrl, isGoogleDriveUrl, getGoogleDriveAudioUrl } from "@/lib/media-links"
 
 const STORAGE_KEY = "neural-morning-checklist"
 const ACTIVATION_STORAGE_KEY = "neural-morning-activation-v2"
@@ -162,6 +164,81 @@ const fieldConfigs: FieldConfig[] = [
   },
 ]
 
+function GammaAudioButton() {
+  const { toggle, isPlaying, isCurrentTrack } = useAudioPlayer()
+  const gammaPlaylist = playlistLinks.find((p) => p.id === "gamma")
+
+  const handleGammaPlay = () => {
+    if (!gammaPlaylist) return
+    const isSpotify = isSpotifyUrl(gammaPlaylist.url)
+    const audioUrl = isGoogleDriveUrl(gammaPlaylist.url)
+      ? getGoogleDriveAudioUrl(gammaPlaylist.url) ?? gammaPlaylist.url
+      : gammaPlaylist.url
+
+    const track: AudioTrack = {
+      id: gammaPlaylist.id,
+      title: gammaPlaylist.title,
+      subtitle: gammaPlaylist.subtitle,
+      url: audioUrl,
+      accentColor: gammaPlaylist.accentColor,
+      source: isSpotify ? "spotify" : "inline",
+    }
+    toggle(track)
+  }
+
+  const isGammaPlaying = gammaPlaylist ? isCurrentTrack(gammaPlaylist.id) && isPlaying : false
+
+  return (
+    <button
+      onClick={handleGammaPlay}
+      className={`w-full relative overflow-hidden flex items-center gap-4 p-4 rounded-2xl border transition-all active:scale-[0.98] mb-6 ${
+        isGammaPlaying
+          ? "border-primary/40 bg-gradient-to-r from-primary/15 to-primary/8 animate-neon-pulse"
+          : "border-primary/25 bg-gradient-to-r from-primary/10 to-primary/5"
+      }`}
+    >
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.04]"
+        style={{
+          background: "radial-gradient(circle at 30% 50%, #00D4FF 0%, transparent 60%)",
+        }}
+        aria-hidden="true"
+      />
+      <div className="relative flex items-center justify-center w-12 h-12 rounded-xl bg-primary/15 shrink-0">
+        {isGammaPlaying ? (
+          <Pause className="w-5 h-5 text-primary" />
+        ) : (
+          <Headphones className="w-5 h-5 text-primary" />
+        )}
+        {isGammaPlaying && (
+          <div className="absolute inset-0 rounded-xl border border-primary/30 animate-ping opacity-20" />
+        )}
+      </div>
+      <div className="flex-1 text-left">
+        <h3 className="text-sm font-bold text-foreground neon-text">
+          {isGammaPlaying ? "Foco Gamma Ativo" : "Audio Foco Gamma"}
+        </h3>
+        <p className="text-[11px] text-muted-foreground">
+          {isGammaPlaying ? "Tocando no player global" : "Toque para ativar o foco gamma"}
+        </p>
+      </div>
+      <div className="flex items-center gap-0.5 shrink-0">
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="w-0.5 rounded-full bg-primary"
+            style={{
+              height: `${8 + Math.sin(i * 1.2) * 6}px`,
+              animation: isGammaPlaying ? `neon-pulse ${1 + i * 0.2}s ease-in-out infinite` : "none",
+              opacity: isGammaPlaying ? 1 : 0.4,
+            }}
+          />
+        ))}
+      </div>
+    </button>
+  )
+}
+
 export function MorningActivation() {
   const [items, setItems] = useState<CheckItem[]>(defaultItems)
   const [hydrated, setHydrated] = useState(false)
@@ -169,6 +246,7 @@ export function MorningActivation() {
   const [checklistOpen, setChecklistOpen] = useState(true)
   const [activationHistory, setActivationHistory] = useState<ActivationLog[]>([])
   const [showHistorySection, setShowHistorySection] = useState(false)
+  const [finalized, setFinalized] = useState(false)
 
   useEffect(() => {
     const saved = loadChecklist()
@@ -280,126 +358,8 @@ export function MorningActivation() {
         />
       </div>
 
-      {/* Gamma Focus - Trilha sonora da ativacao */}
-      <button
-        onClick={() => {
-          window.open("https://open.spotify.com/playlist/exemplo-gamma", "_blank", "noopener,noreferrer")
-        }}
-        className="w-full relative overflow-hidden flex items-center gap-4 p-4 rounded-2xl border border-primary/25 bg-gradient-to-r from-primary/10 to-primary/5 transition-all active:scale-[0.98] animate-neon-pulse mb-6"
-      >
-        <div
-          className="absolute inset-0 pointer-events-none opacity-[0.04]"
-          style={{
-            background: "radial-gradient(circle at 30% 50%, #00D4FF 0%, transparent 60%)",
-          }}
-          aria-hidden="true"
-        />
-        <div className="relative flex items-center justify-center w-12 h-12 rounded-xl bg-primary/15 shrink-0">
-          <Headphones className="w-5 h-5 text-primary" />
-          <div className="absolute inset-0 rounded-xl border border-primary/30 animate-ping opacity-20" />
-        </div>
-        <div className="flex-1 text-left">
-          <h3 className="text-sm font-bold text-foreground neon-text">
-            Audio Foco Gamma
-          </h3>
-          <p className="text-[11px] text-muted-foreground">
-            Trilha sonora oficial da sua ativacao
-          </p>
-        </div>
-        <div className="flex items-center gap-0.5 shrink-0">
-          {[0, 1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="w-0.5 rounded-full bg-primary"
-              style={{
-                height: `${8 + Math.sin(i * 1.2) * 6}px`,
-                animation: `neon-pulse ${1 + i * 0.2}s ease-in-out infinite`,
-              }}
-            />
-          ))}
-        </div>
-      </button>
-
-      {/* All done celebration */}
-      {allDone && hydrated && (
-        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#34D399]/10 border border-[#34D399]/20 mb-5">
-          <Check className="w-4 h-4 text-[#34D399]" />
-          <span className="text-xs text-[#34D399] font-medium">
-            Ativacao completa! Seu cerebro agradece.
-          </span>
-        </div>
-      )}
-
-      {/* Activation Fields - Expandable Textareas */}
-      <div className="flex flex-col gap-4 mb-6">
-        {fieldConfigs.map((cfg) => {
-          const charCount = activation[cfg.key].length
-          const isAtLimit = charCount >= CHAR_LIMIT
-          return (
-            <div key={cfg.key}>
-              <label
-                htmlFor={`activation-${cfg.key}`}
-                className="text-[10px] font-semibold uppercase tracking-wider mb-1.5 block"
-                style={{ color: cfg.color }}
-              >
-                {cfg.label}
-              </label>
-              <textarea
-                id={`activation-${cfg.key}`}
-                value={activation[cfg.key]}
-                onChange={(e) => updateActivation(cfg.key, e.target.value)}
-                placeholder={cfg.placeholder}
-                rows={cfg.minRows}
-                maxLength={CHAR_LIMIT}
-                className={`w-full bg-secondary/60 border rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 resize-y focus:outline-none focus:ring-1 transition-all leading-relaxed ${
-                  isAtLimit ? "border-destructive/60" : "border-border/60"
-                }`}
-                style={{
-                  minHeight: `${cfg.minRows * 2.2}rem`,
-                }}
-                onFocus={(e) => {
-                  if (!isAtLimit) {
-                    e.currentTarget.style.borderColor = `${cfg.color}40`
-                    e.currentTarget.style.boxShadow = `0 0 0 1px ${cfg.color}30`
-                  }
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = ""
-                  e.currentTarget.style.boxShadow = ""
-                }}
-              />
-              <div className="flex items-center justify-between mt-1">
-                {isAtLimit ? (
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <Lock className="w-3 h-3 text-destructive shrink-0" />
-                    <span className="text-[10px] text-destructive font-medium">
-                      Limite de Expansao Neural atingido. Assine o NEURON PRO para liberar escrita ilimitada e backup.
-                    </span>
-                    <a
-                      href="/arsenal"
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#F59E0B]/15 text-[#F59E0B] text-[10px] font-bold hover:bg-[#F59E0B]/25 transition-colors"
-                    >
-                      Upgrade
-                    </a>
-                  </div>
-                ) : (
-                  <span className="text-[10px] text-transparent">.</span>
-                )}
-                <span
-                  className={`text-[10px] font-mono tabular-nums shrink-0 ${
-                    isAtLimit ? "text-destructive" : "text-muted-foreground/50"
-                  }`}
-                >
-                  {charCount}/{CHAR_LIMIT}
-                </span>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Checklist section - collapsible */}
-      <div className="glass-card rounded-2xl overflow-hidden">
+      {/* Checklist section - NO TOPO */}
+      <div className="glass-card rounded-2xl overflow-hidden mb-5">
         <button
           onClick={() => setChecklistOpen(!checklistOpen)}
           className="flex items-center justify-between w-full p-4 text-left"
@@ -455,6 +415,114 @@ export function MorningActivation() {
           </div>
         )}
       </div>
+
+      {/* All done celebration */}
+      {allDone && hydrated && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#34D399]/10 border border-[#34D399]/20 mb-5">
+          <Check className="w-4 h-4 text-[#34D399]" />
+          <span className="text-xs text-[#34D399] font-medium">
+            Ativacao completa! Seu cerebro agradece.
+          </span>
+        </div>
+      )}
+
+      {/* Gamma Focus - Trilha sonora da ativacao (agora usa GlobalAudioPlayer) */}
+      <GammaAudioButton />
+
+      {/* Activation Fields - Expandable Textareas */}
+      <div className="flex flex-col gap-4 mb-6">
+        {fieldConfigs.map((cfg) => {
+          const charCount = activation[cfg.key].length
+          const isAtLimit = charCount >= CHAR_LIMIT
+          return (
+            <div key={cfg.key}>
+              <label
+                htmlFor={`activation-${cfg.key}`}
+                className="text-[10px] font-semibold uppercase tracking-wider mb-1.5 block"
+                style={{ color: cfg.color }}
+              >
+                {cfg.label}
+              </label>
+              <textarea
+                id={`activation-${cfg.key}`}
+                value={activation[cfg.key]}
+                onChange={(e) => updateActivation(cfg.key, e.target.value)}
+                placeholder={cfg.placeholder}
+                rows={cfg.minRows}
+                maxLength={CHAR_LIMIT}
+                className={`w-full bg-secondary/60 border rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 resize-y focus:outline-none focus:ring-1 transition-all leading-relaxed ${
+                  isAtLimit ? "border-destructive/60" : "border-border/60"
+                }`}
+                style={{
+                  minHeight: `${cfg.minRows * 2.2}rem`,
+                }}
+                onFocus={(e) => {
+                  if (!isAtLimit) {
+                    e.currentTarget.style.borderColor = `${cfg.color}40`
+                    e.currentTarget.style.boxShadow = `0 0 0 1px ${cfg.color}30`
+                  }
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = ""
+                  e.currentTarget.style.boxShadow = ""
+                }}
+              />
+              <div className="flex items-center justify-between mt-1">
+                {isAtLimit ? (
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <Lock className="w-3 h-3 text-destructive shrink-0" />
+                    <span className="text-[10px] text-destructive font-medium">
+                      Limite de Expansao Neural atingido. Assine o NEURON PRO para liberar escrita ilimitada e backup.
+                    </span>
+                    <a
+                      href="#"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#F59E0B]/15 text-[#F59E0B] text-[10px] font-bold hover:bg-[#F59E0B]/25 transition-colors"
+                    >
+                      Ativar NEURON PRO
+                    </a>
+                  </div>
+                ) : (
+                  <span className="text-[10px] text-transparent">.</span>
+                )}
+                <span
+                  className={`text-[10px] font-mono tabular-nums shrink-0 ${
+                    isAtLimit ? "text-destructive" : "text-muted-foreground/50"
+                  }`}
+                >
+                  {charCount}/{CHAR_LIMIT}
+                </span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Botao Finalizar Ativacao */}
+      <button
+        onClick={() => {
+          saveToHistory()
+          setFinalized(true)
+          setTimeout(() => setFinalized(false), 3000)
+        }}
+        disabled={finalized}
+        className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-sm transition-all duration-300 ${
+          finalized
+            ? "bg-[#34D399]/20 text-[#34D399] border border-[#34D399]/30"
+            : "bg-primary text-primary-foreground neon-glow active:scale-[0.98]"
+        }`}
+      >
+        {finalized ? (
+          <>
+            <Check className="w-4 h-4" />
+            Ativacao Salva no Log!
+          </>
+        ) : (
+          <>
+            <Save className="w-4 h-4" />
+            Finalizar Ativacao
+          </>
+        )}
+      </button>
 
       {/* Historico de Ativacoes */}
       {activationHistory.length > 0 && (

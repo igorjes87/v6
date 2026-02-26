@@ -71,8 +71,8 @@ function VideoModal({
           />
           {/* Overlay anti-fuga - bloqueia cliques que levam para fora do app */}
           <div
-            className="absolute inset-0 z-10"
-            style={{ pointerEvents: "auto" }}
+            className="absolute inset-0"
+            style={{ zIndex: 999, pointerEvents: "auto" }}
             onClick={(e) => e.stopPropagation()}
             onContextMenu={(e) => e.preventDefault()}
             aria-hidden="true"
