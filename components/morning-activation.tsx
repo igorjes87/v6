@@ -1,11 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Sunrise, Check, RotateCcw, ChevronDown, ChevronUp, Headphones, Lock } from "lucide-react"
+import { Sunrise, Check, RotateCcw, ChevronDown, ChevronUp, Headphones, Lock, History, Calendar, Trash2 } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 
 const STORAGE_KEY = "neural-morning-checklist"
 const ACTIVATION_STORAGE_KEY = "neural-morning-activation-v2"
+const ACTIVATION_HISTORY_KEY = "neural-activation-history"
 const CHAR_LIMIT = 500
 
 interface CheckItem {
@@ -84,6 +85,30 @@ function saveChecklist(items: CheckItem[]) {
   )
 }
 
+interface ActivationLog {
+  id: string
+  fields: ActivationFields
+  completedItems: number
+  totalItems: number
+  date: string
+  displayDate: string
+}
+
+function loadActivationHistory(): ActivationLog[] {
+  if (typeof window === "undefined") return []
+  try {
+    const raw = localStorage.getItem(ACTIVATION_HISTORY_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+function saveActivationHistory(logs: ActivationLog[]) {
+  if (typeof window === "undefined") return
+  localStorage.setItem(ACTIVATION_HISTORY_KEY, JSON.stringify(logs))
+}
+
 interface FieldConfig {
   key: keyof ActivationFields
   label: string
@@ -142,12 +167,15 @@ export function MorningActivation() {
   const [hydrated, setHydrated] = useState(false)
   const [activation, setActivation] = useState<ActivationFields>(emptyActivation)
   const [checklistOpen, setChecklistOpen] = useState(true)
+  const [activationHistory, setActivationHistory] = useState<ActivationLog[]>([])
+  const [showHistorySection, setShowHistorySection] = useState(false)
 
   useEffect(() => {
     const saved = loadChecklist()
     if (saved) setItems(saved)
     const savedActivation = loadActivation()
     if (savedActivation) setActivation(savedActivation)
+    setActivationHistory(loadActivationHistory())
     setHydrated(true)
   }, [])
 
@@ -170,7 +198,40 @@ export function MorningActivation() {
     })
   }
 
+  const saveToHistory = () => {
+    const hasContent = Object.values(activation).some((v) => v.trim().length > 0)
+    if (!hasContent) return
+
+    const log: ActivationLog = {
+      id: Date.now().toString(),
+      fields: { ...activation },
+      completedItems: items.filter((i) => i.checked).length,
+      totalItems: items.length,
+      date: new Date().toISOString(),
+      displayDate: new Date().toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    }
+
+    const updated = [log, ...activationHistory].slice(0, 30)
+    setActivationHistory(updated)
+    saveActivationHistory(updated)
+  }
+
+  const deleteHistoryEntry = (id: string) => {
+    const updated = activationHistory.filter((l) => l.id !== id)
+    setActivationHistory(updated)
+    saveActivationHistory(updated)
+  }
+
   const resetChecklist = () => {
+    // Salva no historico antes de resetar
+    saveToHistory()
+
     const reset = defaultItems.map((i) => ({ ...i, checked: false }))
     setItems(reset)
     saveChecklist(reset)
@@ -312,7 +373,7 @@ export function MorningActivation() {
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <Lock className="w-3 h-3 text-destructive shrink-0" />
                     <span className="text-[10px] text-destructive font-medium">
-                      Limite de Expansao Neural atingido. Assine o Arsenal Pro para liberar escrita ilimitada e backup.
+                      Limite de Expansao Neural atingido. Assine o NEURON PRO para liberar escrita ilimitada e backup.
                     </span>
                     <a
                       href="/arsenal"
@@ -395,9 +456,92 @@ export function MorningActivation() {
         )}
       </div>
 
+      {/* Historico de Ativacoes */}
+      {activationHistory.length > 0 && (
+        <div className="mt-6">
+          <button
+            onClick={() => setShowHistorySection(!showHistorySection)}
+            className="flex items-center justify-between w-full px-3 py-2.5 rounded-xl bg-secondary/40 border border-border/30 text-left mb-2"
+          >
+            <div className="flex items-center gap-2">
+              <History className="w-3.5 h-3.5 text-[#FF8C42]" />
+              <span className="text-xs font-semibold text-foreground">
+                Historico de Ativacoes
+              </span>
+              <span className="text-[10px] text-muted-foreground bg-secondary/60 px-1.5 py-0.5 rounded-full">
+                {activationHistory.length}
+              </span>
+            </div>
+            {showHistorySection ? (
+              <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+            )}
+          </button>
+
+          {showHistorySection && (
+            <div className="space-y-2.5 max-h-80 overflow-y-auto">
+              {activationHistory.map((log) => {
+                const filledFields = Object.entries(log.fields).filter(
+                  ([, v]) => v.trim().length > 0
+                )
+                return (
+                  <div
+                    key={log.id}
+                    className="rounded-xl bg-card/60 border border-border/30 overflow-hidden"
+                  >
+                    {/* Log header */}
+                    <div className="flex items-center justify-between px-3 py-2 bg-secondary/30">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-3 h-3 text-[#FF8C42]" />
+                        <span className="text-[10px] font-mono text-muted-foreground">
+                          {log.displayDate}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-medium text-primary">
+                          {log.completedItems}/{log.totalItems} checklist
+                        </span>
+                        <button
+                          onClick={() => deleteHistoryEntry(log.id)}
+                          className="flex items-center justify-center w-5 h-5 rounded bg-secondary/60 text-muted-foreground hover:text-destructive transition-colors"
+                          aria-label="Excluir entrada"
+                        >
+                          <Trash2 className="w-2.5 h-2.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Log content */}
+                    <div className="px-3 py-2 space-y-1.5">
+                      {filledFields.map(([key, value]) => {
+                        const cfg = fieldConfigs.find((c) => c.key === key)
+                        return (
+                          <div key={key}>
+                            <span
+                              className="text-[9px] font-semibold uppercase tracking-wider"
+                              style={{ color: cfg?.color || "#888" }}
+                            >
+                              {cfg?.label || key}
+                            </span>
+                            <p className="text-[11px] text-foreground/80 leading-relaxed line-clamp-2">
+                              {value}
+                            </p>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Persistence hint */}
       <p className="text-[10px] text-muted-foreground/40 text-center mt-4">
-        Progresso salvo automaticamente. Reseta todo dia.
+        Progresso salvo automaticamente. Reseta todo dia. Historico salvo ao resetar.
       </p>
     </section>
   )

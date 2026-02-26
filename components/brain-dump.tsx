@@ -19,7 +19,7 @@ import {
 import { ProModal } from "@/components/pro-modal"
 
 const STORAGE_KEY = "neural-braindump-notes"
-const FREE_CHAR_LIMIT = 300
+const FREE_CHAR_LIMIT = 500
 
 interface SavedNote {
   id: string
@@ -184,17 +184,18 @@ export function BrainDump() {
 
       {/* Upgrade prompt when at limit */}
       {text.length >= FREE_CHAR_LIMIT && (
-        <div className="flex items-center gap-2 px-3 py-2 mb-3 rounded-xl bg-destructive/10 border border-destructive/20">
+        <div className="flex items-center gap-2 px-3 py-2.5 mb-3 rounded-xl bg-destructive/10 border border-destructive/20">
           <Lock className="w-3.5 h-3.5 text-destructive shrink-0" />
           <span className="text-[10px] text-destructive font-medium flex-1">
-            Upgrade necessario para sincronizar pensamentos na nuvem.
+            Limite atingido.
           </span>
-          <a
-            href="/arsenal"
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#F59E0B]/15 text-[#F59E0B] text-[10px] font-bold hover:bg-[#F59E0B]/25 transition-colors shrink-0"
+          <button
+            onClick={() => setProModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#F59E0B] to-[#F97316] text-[#07070D] text-[10px] font-bold transition-all active:scale-[0.97] shrink-0"
           >
-            Upgrade
-          </a>
+            <Crown className="w-3 h-3" />
+            Liberar Espaco Ilimitado no NEURON PRO
+          </button>
         </div>
       )}
 
@@ -277,55 +278,59 @@ export function BrainDump() {
         </div>
       )}
 
-      {/* History section */}
+      {/* Entradas Recentes */}
       {notes.length > 0 && (
         <div className="mb-6">
-          <button
-            onClick={() => setShowHistory(!showHistory)}
-            className="flex items-center justify-between w-full px-3 py-2.5 rounded-xl bg-secondary/40 border border-border/30 text-left"
-          >
+          <div className="flex items-center justify-between mb-2.5">
             <div className="flex items-center gap-2">
-              <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-              <span className="text-xs font-medium text-foreground">
-                Historico de Notas
+              <Clock className="w-3.5 h-3.5 text-primary" />
+              <span className="text-xs font-semibold text-foreground">
+                Entradas Recentes
               </span>
-              <span className="text-[10px] text-muted-foreground">
-                ({notes.length})
+              <span className="text-[10px] text-muted-foreground bg-secondary/60 px-1.5 py-0.5 rounded-full">
+                {notes.length}
               </span>
             </div>
-            {showHistory ? (
-              <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" />
-            ) : (
-              <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+            {notes.length > 3 && (
+              <button
+                onClick={() => setShowHistory(!showHistory)}
+                className="flex items-center gap-1 text-[10px] text-primary font-medium"
+              >
+                {showHistory ? "Ver menos" : "Ver todas"}
+                {showHistory ? (
+                  <ChevronUp className="w-3 h-3" />
+                ) : (
+                  <ChevronDown className="w-3 h-3" />
+                )}
+              </button>
             )}
-          </button>
+          </div>
 
-          {showHistory && (
-            <div className="mt-2 space-y-2 max-h-60 overflow-y-auto">
-              {notes.map((note) => (
-                <div
-                  key={note.id}
-                  className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-card/60 border border-border/30"
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-foreground line-clamp-3 leading-relaxed">
-                      {note.text}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground/60 mt-1 font-mono">
-                      {note.savedAt}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => handleDeleteNote(note.id)}
-                    className="shrink-0 flex items-center justify-center w-6 h-6 rounded-md bg-secondary/60 text-muted-foreground hover:text-destructive transition-colors"
-                    aria-label={`Excluir nota de ${note.savedAt}`}
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </button>
+          <div className="space-y-2 max-h-72 overflow-y-auto">
+            {(showHistory ? notes : notes.slice(0, 3)).map((note) => (
+              <div
+                key={note.id}
+                className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-card/60 border border-border/30"
+              >
+                <div className="w-1 h-full min-h-[2rem] rounded-full bg-primary/30 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-foreground line-clamp-3 leading-relaxed">
+                    {note.text}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground/60 mt-1 font-mono">
+                    {note.savedAt}
+                  </p>
                 </div>
-              ))}
-            </div>
-          )}
+                <button
+                  onClick={() => handleDeleteNote(note.id)}
+                  className="shrink-0 flex items-center justify-center w-6 h-6 rounded-md bg-secondary/60 text-muted-foreground hover:text-destructive transition-colors"
+                  aria-label={`Excluir nota de ${note.savedAt}`}
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

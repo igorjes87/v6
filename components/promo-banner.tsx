@@ -28,7 +28,7 @@ const banners: Banner[] = [
   },
   {
     id: "b2",
-    title: "Metodo Neural PRO",
+    title: "NEURON PRO",
     subtitle: "67% OFF - Desbloqueie todas as ferramentas.",
     cta: "Assinar PRO",
     action: "pro",

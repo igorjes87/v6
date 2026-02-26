@@ -2,13 +2,14 @@ import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { AudioPlayerProvider } from '@/lib/audio-context'
+import { GlobalAudioPlayer } from '@/components/global-audio-player'
 import './globals.css'
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: 'Método Neural',
-  description: 'Ative seu potencial cognitivo com o Método Neural',
+  title: 'NEURON',
+  description: 'Ative seu potencial cognitivo com o NEURON',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -47,6 +48,7 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans antialiased`}>
         <AudioPlayerProvider>
           {children}
+          <GlobalAudioPlayer />
         </AudioPlayerProvider>
         <Analytics />
       </body>

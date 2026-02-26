@@ -66,8 +66,16 @@ function VideoModal({
             src={embedUrl}
             title={video.title}
             className="absolute inset-0 w-full h-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
+          />
+          {/* Overlay anti-fuga - bloqueia cliques que levam para fora do app */}
+          <div
+            className="absolute inset-0 z-10"
+            style={{ pointerEvents: "auto" }}
+            onClick={(e) => e.stopPropagation()}
+            onContextMenu={(e) => e.preventDefault()}
+            aria-hidden="true"
           />
         </div>
         <div className="mt-4 px-1">

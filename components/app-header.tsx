@@ -24,7 +24,7 @@ export function AppHeader() {
         </div>
         <div>
           <p className="text-xs text-muted-foreground">{greeting}</p>
-          <h1 className="text-base font-semibold text-foreground tracking-tight">Método Neural</h1>
+          <h1 className="text-base font-semibold text-foreground tracking-tight">NEURON</h1>
         </div>
       </div>
 

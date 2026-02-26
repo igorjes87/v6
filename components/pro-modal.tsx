@@ -107,10 +107,10 @@ export function ProModal({ open, onClose }: ProModalProps) {
           </div>
 
           <h2 className="text-xl font-bold text-foreground text-center mb-1">
-            Desbloqueie o PRO
+            Desbloqueie o NEURON PRO
           </h2>
           <p className="text-sm text-muted-foreground text-center mb-5">
-            Acesse todas as ferramentas do Metodo Neural
+            Acesse todas as ferramentas do NEURON
           </p>
 
           {/* Features list */}
@@ -152,7 +152,7 @@ export function ProModal({ open, onClose }: ProModalProps) {
             className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-[#F59E0B] to-[#F97316] text-[#07070D] font-bold text-sm transition-all active:scale-[0.98] shadow-[0_0_30px_rgba(245,158,11,0.35)]"
           >
             <Crown className="w-4 h-4" />
-            Assinar Plano PRO
+            Assinar NEURON PRO
           </button>
 
           <p className="text-[10px] text-muted-foreground/60 text-center mt-3">

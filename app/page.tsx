@@ -11,7 +11,6 @@ import { Arsenal } from "@/components/arsenal"
 import { BiohackerTracker } from "@/components/biohacker-tracker"
 import { BottomNav, type Tab } from "@/components/bottom-nav"
 import { BrainDumpFab } from "@/components/brain-dump-fab"
-import { StickyAudioPlayer } from "@/components/sticky-audio-player"
 import { ProModal } from "@/components/pro-modal"
 import { useAudioPlayer } from "@/lib/audio-context"
 
@@ -57,9 +56,6 @@ export default function HomePage() {
 
         {activeTab === "arsenal" && <Arsenal />}
       </main>
-
-      {/* Sticky Audio Player - only visible when playing */}
-      {isPlayerVisible && <StickyAudioPlayer />}
 
       {/* Brain Dump FAB */}
       <BrainDumpFab isPlayerVisible={isPlayerVisible} />
